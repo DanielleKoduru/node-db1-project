@@ -1,16 +1,19 @@
 const router = require('express').Router()
+const accounts = require("./accounts-model")
+const { checkAccountPayload, checkAccountNameUnique, checkAccountId } = require("../accounts/accounts-middleware")
 
 // #1 `[GET] /api/accounts` returns an array of accounts (or an empty array if there aren't any).
 router.get('/api/accounts', async (req, res, next) => {
   try {
-   
+    const allAccounts = await accounts.getAll()
+      res.status(200).json(allAccounts)
   } catch (err) {
       next(err)
   }
 })
 
 // #2 `[GET] /api/accounts/:id` returns an account by the given id.
-router.get('/api/accounts/:id', async (req, res, next) => {
+router.get('/api/accounts/:id', checkAccountId(), async (req, res, next) => {
   try {
    
 } catch (err) {
@@ -19,7 +22,7 @@ router.get('/api/accounts/:id', async (req, res, next) => {
 })
 
 // #3 `[POST] /api/accounts` returns the created account. Leading or trailing whitespace on budget `name` should be trimmed before saving to db.
-router.post('/api/accounts', async (req, res, next) => {
+router.post('/api/accounts', checkAccountPayload(), checkAccountNameUnique(), async (req, res, next) => {
   try {
         
   } catch (err) {
@@ -28,7 +31,7 @@ router.post('/api/accounts', async (req, res, next) => {
 })
 
 // #4 `[PUT] /api/accounts/:id` returns the updated account. Leading or trailing whitespace on budget `name` should be trimmed before saving to db.
-router.put('/api/accounts/:id', async (req, res, next) => {
+router.put('/api/accounts/:id', checkAccountPayload(), checkAccountNameUnique(), async (req, res, next) => {
   try {
     
   } catch (err) {
