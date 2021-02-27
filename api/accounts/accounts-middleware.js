@@ -1,64 +1,74 @@
-const accountsModel = require("./accounts-model")
+const accounts = require("../accounts/accounts-model")
 
 exports.checkAccountPayload = () => {
-   return (req, res, next) => {
+  return (req, res, next) => {
     if (!req.body.name || !req.body.budget) {
       return res.status(400).json({
         message: "name and budget are required"
       })
-   }
-   if (typeof req.body.name != "string" || req.body.name === 0) {
-     return res.status(400).json({ 
-       message: "name of account must be a string" 
-     })
-   }
-   if (100 < ((req.body.name).trim) < 3) {
-     return res.status(400).json({ 
-       message: "name of account must be between 3 and 100" 
-      })
-   }
-   if (isNaN(req.body.budget)) {
-     return res.status(400).json({ 
-       message: "budget of account must be a number" 
-      })
-   }
-   if (1000000 < (req.body.budget) < 0) {
-     return res.status(400).json({ 
-       message: "budget of account is too large or too small" 
-      })
-   }
-   next()
+    } else {
+      if (typeof req.body.name !== "string") {
+        return res.status(400).json({
+          message: "name of account must be a string"
+        })
+      }
+      else if (100 < ((req.body.name).trim()) || ((req.body.name).trim()) < 3) {
+        return res.status(400).json({
+          message: "name of account must be between 3 and 100"
+        })
+      }
+      else if (typeof req.body.budget !== "number") {
+        return res.status(400).json({
+          message: "budget of account must be a number"
+        })
+      }
+      else if (1000000 < (req.body.budget) || (req.body.budget) < 0) {
+        return res.status(400).json({
+          message: "budget of account is too large or too small"
+        })
+      } else {
+        next()
+      }
+    }
   }
 }
 
-//?? Still not sure about this one
+
+
 exports.checkAccountNameUnique = async (req, res, next) => {
   try {
-    const account = await accountsModel.getAll()
-    if (account.name === req.body.name) {
-      return (req.body.name)
-    } else {
-      res.status(400).json({ 
-        message: "that name is taken" 
+    let allAccounts = await accounts.getAll()
+    const name = (req.body.name).trim()
+
+    allAccounts = allAccounts.filter((accountName) => {
+      return name === accountName.name
+    })
+    console.log(allAccounts)
+
+    if (allAccounts.length >= 1) {
+      res.status(400).json({
+        message: "that name is taken",
       })
+    } else {
+      next()
     }
   } catch (err) {
-    next (err)
+    next(err)
   }
 }
 
 exports.checkAccountId = async (req, res, next) => {
   try {
-    const account = await accountsModel.getById (req.params.id)
+    const account = await accounts.getById(req.params.id)
     if (account) {
       req.account = account
       next()
     } else {
-      res.status(404).json({ 
-        message: "account not found" 
+      res.status(404).json({
+        message: "account not found"
       })
     }
-  } catch (err){
-    next (err)
+  } catch (err) {
+    next(err)
   }
 }
