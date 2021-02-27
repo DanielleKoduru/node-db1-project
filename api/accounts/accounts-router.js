@@ -7,46 +7,46 @@ const { checkAccountPayload, checkAccountNameUnique, checkAccountId } = require(
 router.get('/', async (req, res, next) => {
   try {
     const allAccounts = await accounts.getAll()
-      res.status(200).json(allAccounts)
+    res.status(200).json(allAccounts)
   } catch (err) {
-      next(err)
+    next(err)
   }
 })
 
 // #2 `[GET] /api/accounts/:id` returns an account by the given id.
 router.get('/:id', checkAccountId, (req, res, next) => {
   try {
-   res.status(200).json(req.account)
-} catch (err) {
+    res.status(200).json(req.account)
+  } catch (err) {
     next(err)
-}
+  }
 })
 
 // #3 `[POST] /api/accounts` returns the created account. Leading or trailing whitespace on budget `name` should be trimmed before saving to db.
 router.post('/', checkAccountPayload(), checkAccountNameUnique, async (req, res, next) => {
   try {
-    const newAccount = await accounts.create(req.body) 
-    res.status(200).json(newAccount)   
+    const newAccount = await accounts.create(req.body)
+    res.status(200).json(newAccount)
   } catch (err) {
-      next(err)
+    next(err)
   }
 })
 
 // #4 `[PUT] /api/accounts/:id` returns the updated account. Leading or trailing whitespace on budget `name` should be trimmed before saving to db.
-router.put('/:id', checkAccountPayload, checkAccountNameUnique, checkAccountId, async (req, res, next) => {
+router.put('/:id', checkAccountPayload(), checkAccountId, async (req, res, next) => {
   try {
-    const updatedAccount = await updatedAccount.updateById(req.params.id, req.body)
+    const updatedAccount = await accounts.updateById(req.params.id, req.body)
     res.status(200).json(updatedAccount)
   } catch (err) {
-      next(err)
+    next(err)
   }
 });
 
 // #5 `[DELETE] /api/accounts/:id` returns the deleted account.
 router.delete('/:id', checkAccountId, async (req, res, next) => {
   try {
-   await accounts.deleteById(req.params.id)
-   res.status(204).end()
+    await accounts.deleteById(req.params.id)
+    res.status(204).end()
   } catch (err) {
     next(err)
   }
